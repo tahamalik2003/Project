@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notepad+ To-Do List App</title>
+  <style>
+    /* CSS styles for the notepad interface */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #FDF2AB;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .notepad {
+      background-color: #FFF;
+      border: 1px solid #DDD;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .day {
+      margin-bottom: 20px;
+    }
+
+    .day h2 {
+      margin-bottom: 10px;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .task input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    .task input[type="text"] {
+      flex: 1;
+      border: none;
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    .task button {
+      background-color: #F44336;
+      color: #FFF;
+      border: none;
+      padding: 5px 10px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .task button:hover {
+      background-color: #D32F2F;
+    }
+
+    .task a {
+      background-color: #2196F3;
+      color: #FFF;
+      text-decoration: none;
+      padding: 5px 10px;
+      margin-left: 10px;
+    }
+
+    .task a:hover {
+      background-color: #1976D2;
+    }
+
+    .share-button {
+      background-color: #4CAF50;
+    }
+
+    .download-button {
+      background-color: #2196F3;
+    }
+
+    .search-button {
+      background-color: #FFC107;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Notepad+ To-Do List App</h1>
+  <div class="notepad">
+    <div class="day" id="sunday">
+      <h2>Sunday</h2>
+      <div class="task-list"></div>
+      <div>
+        <input type="text" class="newTaskInput" placeholder="Enter a new task...">
+        <input type="datetime-local" class="newTaskDateTime">
+        <button onclick="addTask('sunday')">Add Task</button>
+      </div>
+    </div>
+
+    <div class="day" id="monday">
+      <h2>Monday</h2>
+      <div class="task-list"></div>
+      <div>
+        <input type="text" class="newTaskInput" placeholder="Enter a new task...">
+        <input type="datetime-local" class="newTaskDateTime">
+        <button onclick="addTask('monday')">Add Task</button>
+      </div>
+    </div>
+
+    <div class="day" id="tuesday">
+      <h2>Tuesday</h2>
+      <div class="task-list"></div>
+      <div>
+        <input type="text" class="newTaskInput" placeholder="Enter a new task...">
+        <input type="datetime-local" class="newTaskDateTime">
+        <button onclick="addTask('tuesday')">Add Task</button>
+      </div>
+    </div>
+
+    <div class="day" id="wednesday">
+      <h2>Wednesday</h2>
+      <div class="task-list"></div>
+      <div>
+        <input type="text" class="newTaskInput" placeholder="Enter a new task...">
+        <input type="datetime-local" class="newTaskDateTime">
+        <button onclick="addTask('wednesday')">Add Task</button>
+      </div>
+    </div>
+
+    <div class="day" id="thursday">
+      <h2>Thursday</h2>
+      <div class="task-list"></div>
+      <div>
+        <input type="text" class="newTaskInput" placeholder="Enter a new task...">
+        <input type="datetime-local" class="newTaskDateTime">
+        <button onclick="addTask('thursday')">Add Task</button>
+      </div>
+    </div>
+
+    <div class="day" id="friday">
+      <h2>Friday</h2>
+      <div class="task-list"></div>
+      <div>
+        <input type="text" class="newTaskInput" placeholder="Enter a new task...">
+        <input type="datetime-local" class="newTaskDateTime">
+        <button onclick="addTask('friday')">Add Task</button>
+      </div>
+    </div>
+
+    <div class="day" id="saturday">
+      <h2>Saturday</h2>
+      <div class="task-list"></div>
+      <div>
+        <input type="text" class="newTaskInput" placeholder="Enter a new task...">
+        <input type="datetime-local" class="newTaskDateTime">
+        <button onclick="addTask('saturday')">Add Task</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // JavaScript code for the Notepad+ To-Do List App
+
+    // Check if there are tasks in local storage and load them
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+
+    // Render the tasks on the page
+    function renderTasks() {
+      Object.keys(tasks).forEach(day => {
+        const dayContainer = document.getElementById(day);
+        const taskList = dayContainer.querySelector('.task-list');
+        taskList.innerHTML = '';
+
+        tasks[day].forEach((task, index) => {
+          const taskItem = document.createElement('div');
+          taskItem.classList.add('task');
+          taskItem.innerHTML = `
+            <input type="checkbox" onchange="toggleTask('${day}', ${index})" ${task.completed ? 'checked' : ''}>
+            <input type="text" value="${task.text}" onchange="updateTask('${day}', ${index}, this.value)">
+            <span>${task.datetime}</span>
+            <button onclick="deleteTask('${day}', ${index})">Delete</button>
+            <a href="#" onclick="searchOnWeb('${task.text}')">Search on Web</a>
+          `;
+          taskList.appendChild(taskItem);
+        });
+      });
+    }
+
+    // Add a new task
+    function addTask(day) {
+      const dayContainer = document.getElementById(day);
+      const newTaskInput = dayContainer.querySelector('.newTaskInput');
+      const newTaskDateTime = dayContainer.querySelector('.newTaskDateTime');
+      const text = newTaskInput.value.trim();
+      const datetime = newTaskDateTime.value;
+
+      if (text !== '') {
+        const task = {
+          text,
+          datetime,
+          completed: false
+        };
+
+        tasks[day] = tasks[day] || [];
+        tasks[day].push(task);
+        newTaskInput.value = '';
+        newTaskDateTime.value = '';
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    // Toggle the completion status of a task
+    function toggleTask(day, index) {
+      tasks[day][index].completed = !tasks[day][index].completed;
+      saveTasks();
+      renderTasks();
+    }
+
+    // Update the text of a task
+    function updateTask(day, index, newText) {
+      tasks[day][index].text = newText;
+      saveTasks();
+    }
+
+    // Delete a task
+    function deleteTask(day, index) {
+      tasks[day].splice(index, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    // Save tasks to local storage
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Share tasks via email
+    function shareTasks() {
+      const emailBody = Object.values(tasks)
+        .flat()
+        .map(task => `${task.text} (${task.datetime})`)
+        .join('\n');
+      const emailSubject = 'My To-Do List';
+
+      const emailLink = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      window.location.href = emailLink;
+    }
+
+    // Download tasks as a file
+    function downloadTasks() {
+      const tasksBlob = new Blob([JSON.stringify(tasks)], { type: 'application/json' });
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(tasksBlob);
+      downloadLink.download = 'todo_list.json';
+      downloadLink.click();
+    }
+
+    // Search tasks on the web
+    function searchOnWeb(text) {
+      const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(text)}`;
+      window.open(searchUrl, '_blank');
+    }
+
+    // Initial render
+    renderTasks();
+  </script>
+</body>
+
+</html>
